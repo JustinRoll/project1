@@ -1,5 +1,6 @@
 import re
 from bs4 import BeautifulSoup
+import glob, os
 class Review:
     def __init__(self):
         self.reviewer = ""
@@ -29,6 +30,9 @@ ratingRegex = r'RATING:\s*(.*)'
 writtenReviewRegex = r'WRITTEN REVIEW:'
 
 def parseReview(html):
+    html = re.sub(r"\<span[^>]*>", " ", html)
+    html = re.sub(r"\<\/span>", " ", html)
+    html = re.sub(r"<br \/>", "</p><p>", html)
     soup = BeautifulSoup(html)
     paragraphs = soup.find_all('p')
     reviews = []
@@ -37,7 +41,7 @@ def parseReview(html):
     metaMode = False
     for paragraph in paragraphs:
         contents = [x if isinstance(x, str) else "\n" for x in paragraph.contents]
-        plaintext = "".join(contents)
+        plaintext = "\n".join(contents)
         reviewer = re.search(reviewerRegex, plaintext, re.IGNORECASE)
         name = re.search(nameRegex, plaintext, re.IGNORECASE)
         address = re.search(addressRegex, plaintext, re.IGNORECASE)
@@ -73,6 +77,21 @@ def parseReview(html):
             metaMode = False
         elif pMode and len(plaintext) > 4:
             review.paragraphs.append(plaintext)
-    reviews.append(review)        
+    reviews.append(review)
     return reviews
 
+def importReviews(directory):
+    reviews = []
+    for filename in glob.glob(os.path.join(directory, '*.html')):
+        f = open(filename, 'r', encoding='utf-8')
+        content = f.read()
+        f.close()
+        newRevs = parseReview(content)
+        reviews.extend(newRevs)
+        for rev in newRevs:
+            if len(rev.paragraphs) == 0:
+                print(filename)
+                #prints names of files that were not correctly parsed
+    return reviews
+
+importReviews("./reviews")
