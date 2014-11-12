@@ -36,20 +36,45 @@ class YelpQuery:
         nameMatch = False
         result = None 
         i = 0
-        while not nameMatch and i < 3:
+        while not nameMatch and i < 3 and i < len(response["businesses"]):
             business = response["businesses"][i]
             if business["name"].lower() == kwargs["term"].lower():
                 nameMatch = True
                 result = business
             i+=1
+        
+        if len(response["businesses"]) > 0:
+                result = response["businesses"][0]
+       
         return result
     
-    def getFeatures(self, restaurantName, location):
+    def getFeatures(self, restaurantName, location, weight):
         featureDict = {}
+        if location == "Arnold":
+                location = "Arnold, CA"
+        elif restaurantName == "G-Brothers Kettlecorn":
+                restaurantName = "G Brothers"
+        elif location == "Shell Beach" and "intock" in restaurantName:
+                restaurantName = "F. McLintocks Saloon & Dining House"
+                location = "Shell Beach, CA"
+        
+
         yelpRestaurant = self.getValidRestaurant(term = restaurantName, location = location, limit = 3)
         if yelpRestaurant:
-            featureDict["rating"] = self.getRating(yelpRestaurant)
-            featureDict["reviewCount"] = self.getReviews(yelpRestaurant)
+            rating = self.getRating(yelpRestaurant)
+            reviewCount = self.getReviews(yelpRestaurant)
+        else:
+            rating = self.getRating({"rating" : 3.0, "review_count" : 21})
+            reviewCount = self.getRating({"rating": 3.0, "review_count" : 21})
+         #the only restaurant for which this failed is Alphys. Hardcoding the vals from
+         #Alphys Chateau Basque at http://www.yelp.com/biz/alphys-chateau-basque-pismo-beach-2
+            print("No yelp info for %s in %s" % (restaurantName, location))
+         
+        for i in range(1, weight + 1):
+            featureDict["rating%d" %i] = rating
+            featureDict["reviewCount%d" %i] = reviewCount
+               
+                
         return featureDict
 
     def getReviews(self, restaurant):
@@ -73,6 +98,7 @@ class YelpQuery:
     
     def getRating(self, restaurant):
         rating = restaurant["rating"]
+        ratingBucket = None
 
         if rating >= 4.5:
             ratingBucket = "above4.5"
