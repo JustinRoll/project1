@@ -1,5 +1,6 @@
 import random,operator,nltk
 import functools
+import rmse
 from nltk.corpus import udhr
 from nltk import bigrams, trigrams, ngrams
 from nltk.tokenize import word_tokenize, sent_tokenize 
@@ -33,16 +34,16 @@ class Classifier:
         top10WordList = [wordList[i] for i in range(0, 10 if len(wordList) > 10 else len(wordList) - 1)]
 
 
-        for sent in sents:
-                tokenizedSent = [word for word in word_tokenize(sent) if ',' not in word and '.' not in word]
-                wordTrigrams = trigrams(tokenizedSent)
-                for trigram in wordTrigrams:
-                        featureDict[trigram] = True
-        for unigram in top10WordList:
-            featureDict[unigram] = self.getBucket(stemmedWordDict[unigram])
+        #for sent in sents:
+        #        tokenizedSent = [word for word in word_tokenize(sent) if ',' not in word and '.' not in word]
+        #        wordTrigrams = trigrams(tokenizedSent)
+        #        for trigram in wordTrigrams:
+        #                featureDict[trigram] = True
+        for unigram in wordList:
+            featureDict[unigram] = 1#self.getBucket(stemmedWordDict[unigram])
         weight = 1
-        yelpFeatures = self.yelpQuery.getFeatures(doc.name, doc.city, weight)
-        featureDict.update(yelpFeatures)
+        #yelpFeatures = self.yelpQuery.getFeatures(doc.name, doc.city, weight)
+        #featureDict.update(yelpFeatures)
         return featureDict
 
     def getAuthorshipFeatures(self, doc):
@@ -96,19 +97,19 @@ class Classifier:
                 key = lambda x : stemmedWordDict[x], reverse=True)
         topWordList = [wordList[i] for i in range(0, 10 if len(wordList) > 10 else len(wordList) - 1)]
 
-        for sent in sents:
-                tokenizedSent = [word for word in word_tokenize(sent) if ',' not in word and '.' not in word]
-                wordTrigrams = trigrams(tokenizedSent)
-                for trigram in wordTrigrams:
-                        featureDict[trigram] = True
+        #for sent in sents:
+        #        tokenizedSent = [word for word in word_tokenize(sent) if ',' not in word and '.' not in word]
+        #        wordTrigrams = trigrams(tokenizedSent)
+        #        for trigram in wordTrigrams:
+        #                featureDict[trigram] = True
                 #wordBigrams = bigrams(tokenizedSent)
                 #for bigram in wordBigrams:
                 #        featureDict[bigram] = True
                 #fourGrams = ngrams(tokenizedSent, 4)
                 #for fourGram in fourGrams:
                 #        featureDict[fourGram] = True
-        for unigram in topWordList:
-            featureDict[unigram] = self.getBucket(stemmedWordDict[unigram])
+        for unigram in wordList:
+            featureDict[unigram] = 1#self.getBucket(stemmedWordDict[unigram])
         
         return featureDict  
     #return a dictionary with words and a count of all the words in the review
@@ -159,7 +160,7 @@ class Classifier:
 
     def classifyOverallReviews(self):
 
-        docs = [(review, 'Pos') for review in self.reviews if review.rating > 3] + [(review, 'Neg') for review in self.reviews if review.rating <= 3]
+        docs = [(review, 1) for review in self.reviews if review.rating > 3] + [(review, 0) for review in self.reviews if review.rating <= 3]
         random.shuffle(docs)
 
         featureSets = [(self.getOverallFeatures(d),label) for (d, label) in docs]
@@ -169,7 +170,7 @@ class Classifier:
         classifier = nltk.NaiveBayesClassifier.train(train)
         print(classifier.show_most_informative_features(20))
  
-        return nltk.classify.accuracy(classifier,test) 
+        return rmse.getError(classifier, test)#nltk.classify.accuracy(classifier,test) 
 
     def classifyOverallReviewsExact(self):
 
@@ -184,6 +185,7 @@ class Classifier:
         print(classifier.show_most_informative_features(20))
  
         return nltk.classify.accuracy(classifier,test)  
+
 
     def classifyParagraphReviewsExact(self):
         
@@ -228,9 +230,9 @@ class Classifier:
         for review in self.reviews:
             for score, paragraph in review.ratingParagraphMap.items():
                 if score > 3:
-                    docs.append((paragraph, 'Pos'))
+                    docs.append((paragraph, 1))
                 else:
-                    docs.append((paragraph, 'Neg'))
+                    docs.append((paragraph, 0))
         random.shuffle(docs)
 
         featureSets = [(self.getParagraphFeatures(d),label) for (d, label) in docs]
@@ -239,9 +241,9 @@ class Classifier:
 
         classifier = nltk.NaiveBayesClassifier.train(train)
         print(classifier.show_most_informative_features(20))
- 
-        return nltk.classify.accuracy(classifier,test)   
 
+        return rmse.getError(classifier, test)#nltk.classify.accuracy(classifier,test)  
+ 
     def getAverages(self):
         runningTotal = 0.0
         for i in range(1, 5):
