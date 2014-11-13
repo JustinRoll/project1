@@ -47,7 +47,35 @@ class YelpQuery:
                 result = response["businesses"][0]
        
         return result
-    
+
+    def getExactFeatures(self, restaurantName, location, weight):
+        featureDict = {}
+        if location == "Arnold":
+                location = "Arnold, CA"
+        elif restaurantName == "G-Brothers Kettlecorn":
+                restaurantName = "G Brothers"
+        elif location == "Shell Beach" and "intock" in restaurantName:
+                restaurantName = "F. McLintocks Saloon & Dining House"
+                location = "Shell Beach, CA"
+        
+
+        yelpRestaurant = self.getValidRestaurant(term = restaurantName, location = location, limit = 3)
+        if yelpRestaurant:
+            rating = self.getExactRating(yelpRestaurant)
+            reviewCount = self.getReviews(yelpRestaurant)
+        else:
+            rating = self.getExactRating({"rating" : 3.0, "review_count" : 21})
+            reviewCount = self.getReviews({"rating": 3.0, "review_count" : 21})
+         #the only restaurant for which this failed is Alphys. Hardcoding the vals from
+         #Alphys Chateau Basque at http://www.yelp.com/biz/alphys-chateau-basque-pismo-beach-2
+            print("No yelp info for %s in %s" % (restaurantName, location))
+         
+        for i in range(1, weight + 1):
+            featureDict["rating%d" %i] = rating
+            featureDict["reviewCount%d" %i] = reviewCount
+                
+        return featureDict 
+
     def getFeatures(self, restaurantName, location, weight):
         featureDict = {}
         if location == "Arnold":
@@ -73,7 +101,6 @@ class YelpQuery:
         for i in range(1, weight + 1):
             featureDict["rating%d" %i] = rating
             featureDict["reviewCount%d" %i] = reviewCount
-               
                 
         return featureDict
 
@@ -95,7 +122,26 @@ class YelpQuery:
             reviewCountBucket = "below100"
     
         return reviewCountBucket
-    
+
+    def getExactRating(self, restaurant):
+        rating = restaurant["rating"]
+        ratingBucket = None
+
+        if rating >= 4.5:
+            ratingBucket = "above45"
+        elif rating >= 4.0:
+            ratingBucket = "above4"
+        elif rating >= 3.0:
+            ratingBucket = "above3"
+        elif rating >= 2.0:
+            ratingBucket = "above2"
+        elif ratingBucket >= 1.0:
+            ratingBucket = "above1"
+        else:
+            ratingBucket = "above0"
+
+        return ratingBucket 
+
     def getRating(self, restaurant):
         rating = restaurant["rating"]
         ratingBucket = None
