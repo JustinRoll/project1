@@ -4,7 +4,7 @@ from review import *
 
 def main():
     reviews = importReviews("./reviews")
-    #classifier = Classifier(reviews)
-    #print(classifier.classifyOverallReviews())
-
+    classifier = Classifier(reviews)
+    print(classifier.classifyOverallReviews())
+    #print(classifier.classifyParagraphReviews())
 main() 

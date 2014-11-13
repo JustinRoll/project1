@@ -12,11 +12,17 @@ class Review:
         self.venue = 0
         self.rating = 0
         self.paragraphs = list()
-
+        self.ratingParagraphMap = {}
     def get_dict(self):
         return {"reviewer" : self.reviewer, "name" : self.name, "city" : self.city,
                 "food" : self.food, "service" : self.service, "venue" : self.venue,
                 "rating" : self.rating, "paragraphs" : self.paragraphs}
+    #food service venue
+    def make_paragraph_map(self):
+        if len(self.paragraphs) >= 4:
+            self.ratingParagraphMap[self.food] = self.paragraphs[0]
+            self.ratingParagraphMap[self.service] = self.paragraphs[1]
+            self.ratingParagraphMap[self.venue] = self.paragraphs[2]
 
 tagRegex = r'\<[^>]*\>'
 reviewerRegex = r'REVIEWER:\s*(.*)'
@@ -77,6 +83,7 @@ def parseReview(html):
             metaMode = False
         elif pMode and len(plaintext) > 4:
             review.paragraphs.append(plaintext)
+    review.make_paragraph_map()
     reviews.append(review)
     return reviews
 

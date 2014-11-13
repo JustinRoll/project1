@@ -100,24 +100,10 @@ class YelpQuery:
         rating = restaurant["rating"]
         ratingBucket = None
 
-        if rating >= 4.5:
-            ratingBucket = "above4.5"
+        if rating >= 4.0:
+            ratingBucket = "positive"
 
-        elif rating >= 4:
-            ratingBucket = "above4"
-
-        elif rating >= 3.5:
-            ratingBucket = "above3.5"
-
-        elif rating >= 3.0:
-            ratingBucket = "above3"
-
-        elif rating >= 2.0:
-            ratingBucket = "above2"
-
-        elif rating >= 1.0:
-            ratingBucket = "above1"
         else:
-            ratingBucket = "below1"
+            ratingBucket = "negative"
 
         return ratingBucket 
