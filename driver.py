@@ -6,5 +6,5 @@ def main():
     reviews = importReviews("./reviews")
     classifier = Classifier(reviews)
     print(classifier.classifyOverallReviews())
-    #print(classifier.classifyParagraphReviews())
+    print(classifier.classifyParagraphReviews())
 main() 
