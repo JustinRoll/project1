@@ -89,8 +89,9 @@ def importReviews(directory):
         newRevs = parseReview(content)
         reviews.extend(newRevs)
         for rev in newRevs:
-            if len(rev.paragraphs) == 0:
+            if len(rev.paragraphs) != 4:
                 print(filename)
+                print(len(rev.paragraphs))
                 #prints names of files that were not correctly parsed
     return reviews
 

@@ -83,7 +83,7 @@ class Classifier:
 
     def classifyOverallReviews(self):
 
-        docs = [(review, 'Pos') for review in self.reviews if review.rating >= 3] + [(review, 'Neg') for review in self.reviews if review.rating < 3]
+        docs = [(review, 'Pos') for review in self.reviews if review.rating > 3] + [(review, 'Neg') for review in self.reviews if review.rating <= 3]
         random.shuffle(docs)
 
         featureSets = [(self.getOverallFeatures(d),label) for (d, label) in docs]

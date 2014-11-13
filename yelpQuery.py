@@ -104,7 +104,7 @@ class YelpQuery:
             ratingBucket = "above4.5"
 
         elif rating >= 4:
-            ratingBucker = "above4"
+            ratingBucket = "above4"
 
         elif rating >= 3.5:
             ratingBucket = "above3.5"
