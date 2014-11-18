@@ -258,7 +258,7 @@ class Classifier:
         classifier = nltk.NaiveBayesClassifier.train(train)
         print(classifier.show_most_informative_features(20))
  
-        return rmse.getError(classifier, test), nltk.classify.accuracy(classifier,test)   
+        return 0, nltk.classify.accuracy(classifier,test)   
 
     def classifyParagraphReviews(self):
         
