@@ -9,10 +9,6 @@ from nltk.stem.snowball import SnowballStemmer
 from yelpQuery import YelpQuery
 from sentencePolarity import SentencePolarity
 
-#to do: add features for word sentiments
-    #high amount of positive sentiment sentences
-    #anything to be done for exact scores?
-    #add rmse stuff
 class Classifier:
 
     def __init__(self, reviews):
