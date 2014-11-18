@@ -46,22 +46,22 @@ class Classifier:
             if negProb >= .6:
                 negativeSentenceCount += 1
 
-            for word in tokenizedSent:
-                posProb, negProb = self.polarity.classifyWord(word)
-                if negProb >= .8:
-                    featureDict[word + " neg polarity"] = 1
-                if posProb >= .8:
-                    featureDict[word + " pos polarity"] = 1 
+            #for word in tokenizedSent:
+            #    posProb, negProb = self.polarity.classifyWord(word)
+            #    if negProb >= .8:
+            #        featureDict[word + " neg polarity"] = 1
+            #    if posProb >= .8:
+            #        featureDict[word + " pos polarity"] = 1 
 
-#        wordTrigrams = trigrams(tokenizedSent)
-        #        for trigram in wordTrigrams:
-        #                featureDict[trigram] = True
-#        for unigram in wordList:
-#            featureDict[unigram] = 1#self.getBucket(stemmedWordDict[unigram])
+            #wordTrigrams = trigrams(tokenizedSent)
+            #for trigram in wordTrigrams:
+            #    featureDict[trigram] = True
+        for unigram in top10WordList:
+            featureDict[unigram] = 1 #self.getBucket(stemmedWordDict[unigram])
         
         featureDict["posSentences"] = self.getBucket(positiveSentenceCount)
         featureDict["negSentences"] = self.getBucket(negativeSentenceCount)
-        #yelpFeatures = self.yelpQuery.getFeatures(doc.name, doc.city, weight)
+        #yelpFeatures = self.yelpQuery.getFeatures(doc.name, doc.city, 1)
         #featureDict.update(yelpFeatures)
         return featureDict
 
@@ -258,7 +258,7 @@ class Classifier:
         classifier = nltk.NaiveBayesClassifier.train(train)
         print(classifier.show_most_informative_features(20))
  
-        return nltk.classify.accuracy(classifier,test)   
+        return rmse.getError(classifier, test), nltk.classify.accuracy(classifier,test)   
 
     def classifyParagraphReviews(self):
         
@@ -281,9 +281,15 @@ class Classifier:
 
         return rmse.getError(classifier, test), nltk.classify.accuracy(classifier,test)  
  
-    def getAverages(self):
-        runningTotal = 0.0
-        for i in range(1, 5):
-            runningTotal += self.classifyOverallReviews()
-
-        print("Overall Positive/Negative prediction accuracy: %f", runningTotal / 5)
+    def getAverages(self, function):
+        accuracyTotal = 0.0
+        rmseTotal = 0.0
+        accuracies = []
+        for i in range(0, 5):
+            rmse, accuracy = function()
+            accuracies.append(accuracy)
+            accuracyTotal += accuracy
+            rmseTotal += rmse
+        print(accuracies)
+        return rmseTotal / 5.0, accuracyTotal / 5.0
+    

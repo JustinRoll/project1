@@ -11,3 +11,7 @@ def getError(classifier, testSet):
 def rmse(items):
     squaredDiffs = [(actual-expected)**2 for actual, expected in items]
     return math.sqrt(sum(squaredDiffs) / len(items))
+
+def rmseAuth(items):
+    squaredDiffs = [(actual-expected)**2 for actual, expected in items]
+    return math.sqrt(sum(squaredDiffs) / len(items)) 
