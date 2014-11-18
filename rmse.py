@@ -9,9 +9,11 @@ def getError(classifier, testSet):
     return rmse(items)
 
 def rmse(items):
-    squaredDiffs = [(actual-expected)**2 for actual, expected in items]
+    squaredDiffs = [(dist(actual, expected))**2 for actual, expected in items]
     return math.sqrt(sum(squaredDiffs) / len(items))
 
-def rmseAuth(items):
-    squaredDiffs = [(actual-expected)**2 for actual, expected in items]
-    return math.sqrt(sum(squaredDiffs) / len(items)) 
+def dist(actual, expected):
+    if type(actual) is str:
+        return 1 if actual == expected else 0
+    else:
+        return actual-expected
